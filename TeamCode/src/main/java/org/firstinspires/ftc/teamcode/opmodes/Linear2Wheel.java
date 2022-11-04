@@ -43,8 +43,7 @@ import org.firstinspires.ftc.teamcode.utils.ValueBounce;
 
 
 /**
- * @author Rudy Soliz
- * @author Nicholas Vettor
+ * @author Jeremy Vettor
  */
 
 @TeleOp(name="2 Wheel OpMode", group="Linear Opmode")
@@ -122,9 +121,22 @@ public class Linear2Wheel extends LinearOpMode {
             float mod = driveMod.getModifier(gamepad1, logger);
 
             // --- Get Input Data for drive
-            double drive = -gamepad1.left_stick_y * mod;
+            // is greater than 0 to make it a boolean (not a float) so it becomes a funcitoning if statements
+            // left bumper is after the greater than sign because it checks for trigger, and if yes, checks for bumper
+
+
+
+            double drive =  0;
             double turn  =  gamepad1.left_stick_x * mod;
 
+            if(gamepad1.right_bumper) {
+                drive = gamepad1.right_bumper ? 1 : 0;
+
+            }
+            else if(gamepad1.left_bumper){
+                drive = gamepad1.left_bumper ? -1 : 0;
+
+            }
             leftPower    = Range.clip(drive + turn, -1, 1.0);
             rightPower   = Range.clip(drive - turn, -1, 1.0);
 
@@ -133,14 +145,14 @@ public class Linear2Wheel extends LinearOpMode {
             rightDrive.setPower(rightPower);
 
             // --- Get Input for arms
-            if(gamepad2.dpad_up){
+            if(gamepad1.left_trigger > 0 && gamepad1.left_bumper){
                 if(armHeight < maxArmHeight){
                     armHeight++;
                     leftArm.setPower(armSpeed);
                     rightArm.setPower(armSpeed);
                 }
             }
-            if(gamepad2.dpad_down){
+            if(gamepad1.left_trigger > 0 && gamepad1.right_bumper){
                 if(armHeight > 0){
                     armHeight--;
                     leftArm.setPower(-armSpeed);
@@ -152,37 +164,21 @@ public class Linear2Wheel extends LinearOpMode {
             rightArm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             rightArm.setTargetPosition(armHeight);
 
-            // --- Set Position Levels
-            if(gamepad2.right_trigger > 0.8) {
-                int pos = bounce.advance();
-                leftArm.setTargetPosition(pos);
-                rightArm.setTargetPosition(pos);
-            }
 
-            // --- Experimental Arm Speed Control
-            if(gamepad2.dpad_left){
+            double speed = 0.5;
 
-                if(armSpeed < 1){
-
-                    armSpeed+= 0.1;
-
-                }
-
-
-            }else if(gamepad2.dpad_right){
-                if(armSpeed > 0){
-
-                    armSpeed-= 0.1;
-
-                }
-            }
 
             // --- Grab Controllers
-            leftGrabPosition += gamepad2.left_stick_y * grabMod.getModifier(gamepad2, logger);
-            leftGrabPosition = Range.clip(leftGrabPosition, 0, 0.65);
+            if(gamepad1.left_stick_button) {
+                leftGrabPosition += speed * grabMod.getModifier(gamepad1, logger);
+                leftGrabPosition = Range.clip(leftGrabPosition, 0, 0.65);
+            }
 
-            rightGrabPosition += gamepad2.left_stick_y * grabMod.getModifier(gamepad2, logger);
-            rightGrabPosition = Range.clip(rightGrabPosition, 0, 0.65);
+            if(gamepad1.left_stick_button) {
+                rightGrabPosition += speed * grabMod.getModifier(gamepad1, logger);
+                rightGrabPosition = Range.clip(rightGrabPosition, 0, 0.65);
+            }
+
 
             leftGrab.setPosition(leftGrabPosition);
             rightGrab.setPosition(rightGrabPosition);
